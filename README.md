@@ -16,5 +16,5 @@ and... you're done!
 You can use the member functions as you wish!
 
 # More info
-
+NOTE: This library is still very **WIP**
 Feel free to take a look at the Source.cpp file to reference
