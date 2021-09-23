@@ -14,3 +14,7 @@ auto parsed_dll = pe_parser("kernel32.dll");
 ```
 and... you're done!
 You can use the member functions as you wish!
+
+# More info
+
+Feel free to take a look at the Source.cpp file to reference
