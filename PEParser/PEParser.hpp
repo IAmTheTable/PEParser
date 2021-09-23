@@ -17,7 +17,7 @@ struct export_obj
 	/*internal_address(internal_address)*/
 };
 
-struct pe_parser
+class pe_parser
 {
 	// other vars
 	BYTE* base = nullptr;
@@ -27,6 +27,7 @@ struct pe_parser
 	IMAGE_IMPORT_DESCRIPTOR* import_table = nullptr;
 	_IMAGE_EXPORT_DIRECTORY* export_table = nullptr;
 
+public:
 	HMODULE module_of_proc;
 	std::vector<export_obj> exported_funcs;
 	pe_parser(const char* dll_name)
@@ -65,7 +66,7 @@ struct pe_parser
 		}
 	};
 
-	export_obj find_by_name(std::string_view func_name)
+	export_obj find_by_name(const std::string& func_name)
 	{
 		for (auto i = 0; i < exported_funcs.size(); i++)
 		{
