@@ -2,7 +2,10 @@
 A **SMALL** library I wrote for reading module exports.
 
 # Contribute
-Please provide helping criticism for me to learn. I would love to see what I can improve on.
+Please provide helping criticism for me to learn. 
+
+I would love to see what I can improve on.
+
 I do plan on adding more and more but this is it for now.
 
 Add my Discord: Table#0420
