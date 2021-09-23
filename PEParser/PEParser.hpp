@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <Windows.h>
-#include <forward_list>
+#include <vector>
 #include <type_traits>
 #include <memory>
 
@@ -19,7 +19,7 @@ struct export_obj
 		address(address),
 		external_address(external_address),
 		architecture(architecture),
-		ordinal(ordinal){};
+		ordinal(ordinal) {};
 	/*internal_address(internal_address)*/
 };
 
@@ -31,17 +31,11 @@ class pe_parser
 	// headers
 	IMAGE_DOS_HEADER* dos_header = nullptr;
 	IMAGE_OPTIONAL_HEADER64* optional_header64 = nullptr;
-	IMAGE_OPTIONAL_HEADER32* optional_header32 = nullptr;
+	_IMAGE_OPTIONAL_HEADER* optional_header32 = nullptr;
 	IMAGE_IMPORT_DESCRIPTOR* import_table = nullptr;
 	_IMAGE_EXPORT_DIRECTORY* export_table = nullptr;
 	// List of exported functions
-	std::forward_list<std::unique_ptr<export_obj>> exported_funcs;
-
-	template<typename ...args>
-	void add_exported_func(args&&... arg)
-	{
-		exported_funcs.emplace_back(std::make_unique<export_obj>(std::forward<args>(arg)...));
-	}
+	std::vector<export_obj> exported_funcs;
 
 public:
 	HMODULE module_of_proc;
@@ -82,7 +76,7 @@ public:
 				auto func_addy = static_cast<std::uintptr_t>(exported_func_address[i]);
 				//external address of the function ex: 0x0007FFE5D953943
 				auto func_ex_addy = reinterpret_cast<std::uintptr_t>(base + func_addy);
-				add_exported_func(std::string(func_name), func_addy, func_ex_addy, 64);
+				exported_funcs.emplace_back(export_obj(std::string(func_name), func_addy, func_ex_addy, 64, i + 1));
 			}
 		}
 		else
@@ -104,25 +98,23 @@ public:
 				auto func_addy = static_cast<std::uintptr_t>(exported_func_address[i]);
 				//external address of the function ex: 0x0007FFE5D953943
 				auto func_ex_addy = reinterpret_cast<std::uintptr_t>(base + func_addy);
-				add_exported_func(std::string(func_name), func_addy, func_ex_addy, 32);
+
+				exported_funcs.emplace_back(export_obj(std::string(func_name), func_addy, func_ex_addy, 32, i + 1));
 			}
 		}
 	};
 
-	std::forward_list<export_obj> get_func_list()
+	std::vector<export_obj> get_func_list()
 	{
-		return std::forward_list<export_obj>(exported_funcs.begin(), exported_funcs.end());
+		return exported_funcs;
 	}
 
 	export_obj find_by_name(const std::string& func_name)
 	{
-		for (auto i = 0; i < get_func_list().end()->ordinal; i++)
+		for (auto i = 0; i < exported_funcs.size(); i++)
 		{
-			auto function = get_func_list().begin();
-			if (function->name.find(func_name) != std::string::npos)
-				return function._Ptr;
-				function
-					// todo increment and return
+			if (exported_funcs.at(i).name.find(func_name) != std::string::npos)
+				return exported_funcs.at(i);
 		}
 	}
 	export_obj get_by_index(unsigned int idx)
